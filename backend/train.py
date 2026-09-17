@@ -11,7 +11,7 @@ def buildDataset():
   windows, gLabels, ppmLabels = [], [], []
   for gas, fpath in csvFiles.items():
     if os.path.exists(fpath):
-      df = pd.read_csv(fpath)
+      df = pd.read_csv(fpath, on_bad_lines='skip')
       vals = df['voltage2'].values.astype(np.float32)
       ppms = df['ppm'].values.astype(np.float32) if 'ppm' in df.columns else np.zeros(len(vals), dtype=np.float32)
       for i in range(0, len(vals) - 20 + 1, 10):
