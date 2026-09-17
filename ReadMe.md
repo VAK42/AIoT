@@ -32,7 +32,7 @@ Cloud Platform Layer: Advantech WISE-IoT Platform - Historical Storage, Analytic
            ▲
            │ Internet MQTT Via Ethernet / Wi-Fi
            ▼
-Edge AI Layer: Raspberry Pi 5 Gateway - Modbus Master, Filtering, Random Forest AI
+Edge AI Layer: Raspberry Pi 5 Gateway - Modbus Master, Filtering, Multi-Task 1D-CNN AI
            ▲
            │ RS-485 Bus Modbus RTU - STP Twisted Pair, 120 Ohm Termination
            ▼
@@ -63,7 +63,7 @@ Raspberry Pi 5 Gateway Modbus Master Thu Thập Dữ Liệu
            │
            ├── Lọc Số EMA Filter & Bù Drift Nhiệt Ẩm
            ├── Trích Xuất Time-Series Feature Vector
-           └── Chạy Edge AI Random Forest Model Nhận Dạng Gas Pattern & Classify Risk
+           └── Chạy Edge AI Multi-Task 1D-CNN Model Nhận Dạng Gas Pattern & Classify Risk
            │
            ▼
 Fail-Safe Decision Cảnh Báo Tại Biên Ngay Cả Khi Mất Network

@@ -1,6 +1,7 @@
 websockets
 scikit-learn
 tensorflow
+openpyxl
 pandas
 uvicorn
 fastapi

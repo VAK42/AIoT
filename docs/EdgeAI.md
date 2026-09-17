@@ -15,13 +15,13 @@ Modbus RTU Master Polling Telemetry
 Data Preprocessing
   ├── Digital Filtering Qua EMA Filter
   ├── Drift Compensation Cho Nhiệt Độ & Độ Ẩm
-  └── Time-Series Feature Extraction: Mean, Δ, Slope, Statistical Features (Mean, Std, Max, Min, Quartiles)
+  └── Sliding Window 20 Steps & Kinematic Features (Slope, Range, IQR)
        │
        ▼
-Edge AI Inference JSON Runtime
+Edge AI Inference Multi-Task 1D-CNN Runtime
   ├── Gas Fingerprint Pattern Recognition
-  ├── Anomaly & Leak Detection
-  └── Risk Classification 4 Level
+  ├── Gas Concentration Regression
+  └── Risk Classification 4 Level & Prognostics
        │
        ▼
 Decision & Alert Logic
@@ -39,12 +39,12 @@ Decision & Alert Logic
 - EMA Filter Khử Nhiễu Dao Động Điện Áp & Luồng Gió Với Hệ Số Alpha 0.2
 - Drift Compensation Hiệu Chuẩn Sai Lệch Nhiệt Ẩm Cho Cảm Biến MQ136 & MQ135
 
-### 2.2. Time-Series Feature Extraction
+### 2.2. Time-Series Feature Extraction & Preprocessing
 
-- Sliding Window 30s Trích Xuất 3 Nhóm Đặc Trưng:
-  - Instantaneous Values: H2S ppm, MQ136 ADC, MQ135 ADC, Nhiệt Độ, Độ Ẩm
-  - Gradient ΔC / Δt: Tốc Độ Tăng Nồng Độ Chỉ Báo Rò Rỉ Đột Biến
-  - Sensor Array Statistical Features (Mean, Std, Max, Min, Quartiles): Phân Biệt H2S Thực Sự Với Khí Nền VOCs
+- Sliding Window 20 Steps Thời Gian Trích Xuất Đặc Trưng:
+  - Raw Normalized Tensor: Input Trực Tiếp Vào 1D-CNN Bảo Toàn Shape Tín Hiệu
+  - Gradient ΔC / Δt: Tốc Độ Tăng Nồng Độ Chỉ Báo Rò Rỉ Đột Biến & Dự Báo TTE
+  - Statistical Features (mean, std, max, min, range, IQR): Phân Biệt H2S Thực Sự Với Khí Nền VOCs
 
 ---
 
@@ -52,9 +52,9 @@ Decision & Alert Logic
 
 ### 3.1. Model Architecture
 
-- Random Forest Model Tối Ưu Hóa Sang Định Dạng JSON
-- Input: Vector K Đặc Trưng Trong Sliding Window
-- Output: Leak Probability 0.0 Đến 1.0 & Risk Class 4 Level
+- Multi-Task 1D-CNN Model: 2 Lớp Conv1D, GlobalAveragePooling1D, Dense 32
+- Input: Temporal Tensor Trong Sliding Window
+- Output: Gas Classification Softmax & Nồng Độ ppm Softplus
 
 ### 3.2. 4 Risk Levels Standard
 

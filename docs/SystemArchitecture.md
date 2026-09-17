@@ -17,10 +17,10 @@ Cloud Platform Layer: Advantech WISE-IoT Platform - Historical Storage, Analytic
        ▲
        │ Internet MQTT Via Ethernet / Wi-Fi
        ▼
-Edge AI Layer: Raspberry Pi 5 Gateway - Modbus Master, Filtering, Random Forest AI
+Edge AI Layer: Raspberry Pi 5 Gateway - Modbus Master, Filtering, Multi-Task 1D-CNN AI
   ├── Data Acquisition: Modbus Master Engine Polling Node 1 Đến N
   ├── Data Preprocessing: EMA Filter & Drift Compensation
-  ├── Edge AI Inference: Random Forest Model Nhận Dạng Gas Fingerprint
+  ├── Edge AI Inference: Multi-Task 1D-CNN Model Nhận Dạng Gas Fingerprint & Định Lượng Nồng Độ
   ├── Decision Logic: Ngưỡng OSHA & Confidence Score Phân Cấp 4 Level
   └── Local Storage: Lưu Config, SQLite DB & Inference Logs Độc Lập
        ▲
@@ -61,7 +61,7 @@ Perception Layer: ESP32 Nodes + ZE03-H2S / MQ136, MQ135, DHT22 + IP65 Enclosure 
 - Phần Cứng: Raspberry Pi 5 Broadcom BCM2712 Quad-Core Cortex-A76
 - Modbus Master Engine: Polling Định Kỳ 1s → 2s Đọc Holding Registers Node 1 Đến N
 - Preprocessing: EMA Filter Khử Nhiễu & Trích Xuất Slope ΔC / Δt
-- Edge AI Random Forest: Nhận Dạng Gas Fingerprint & Phân Cấp An Toàn 4 Level:
+- Edge AI Multi-Task 1D-CNN: Nhận Dạng Gas Fingerprint, Định Lượng Nồng Độ ppm & Phân Cấp An Toàn 4 Level:
   - Normal: An Toàn Dưới 1.0 ppm
   - Warning: Rò Rỉ Sớm 1.0 Đến 9.9 ppm
   - Hazardous: Vượt Ngưỡng OSHA 10.0 Đến 49.9 ppm

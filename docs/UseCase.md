@@ -47,9 +47,9 @@
 - Preprocessing Pipeline:
   - Khử Nhiễu Dao Động Bằng Thuật Toán EMA Filter
   - Bù Trừ Sai Lệch Nhiệt Ẩm Drift Compensation
-  - Trích Xuất Vector Đặc Trưng Time-Series: Độ Dốc Slope & Statistical Features (Mean, Std, Max, Min, Quartiles)
+  - Temporal Sliding Window 20 Bước Thời Gian & Trích Xuất Động Học Kinematics (Slope ΔC / Δt, Range, IQR)
 - Edge AI Inference:
-  - Mô Hình Random Forest Tối Ưu Hóa Sang Định Dạng JSON
+  - Mô Hình Multi-Task 1D-CNN Đồng Thời Nhận Dạng Gas Fingerprint & Định Lượng Nồng Độ ppm
   - Phân Biệt Gas Fingerprint H2S Thực Sự Với Khí Nền VOCs Tránh False Alarm
   - Phân Cấp An Toàn 4 Level: Normal, Warning, Hazardous, Emergency
 - Local Fail-Safe Storage: Ghi Dữ Liệu SQLite & Kích Hoạt Còi Đèn Cục Bộ Độc Lập Khi Mất Mạng
