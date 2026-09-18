@@ -39,20 +39,20 @@ class FirebaseService:
   def checkConnection(self, gas):
     url = self.dbUrls.get(gas, '')
     if not url:
-      return {'connected': False, 'code': 404, 'status': 'Offline (404)', 'url': '', 'latencyMs': 0.0}
+      return {'connected': False, 'code': 404, 'status': 'Offline - 404', 'url': '', 'latencyMs': 0.0}
     tStart = time.perf_counter()
     try:
       req = urllib.request.Request(url, headers={'Accept': 'application/json'})
       with urllib.request.urlopen(req, timeout=2.5) as resp:
         code = resp.getcode()
         latency = round((time.perf_counter() - tStart) * 1000, 1)
-        return {'connected': code == 200, 'code': code, 'status': f'Connected ({code})' if code == 200 else f'HTTP {code}', 'url': url, 'latencyMs': latency}
+        return {'connected': code == 200, 'code': code, 'status': f'Connected - {code}' if code == 200 else f'HTTP {code}', 'url': url, 'latencyMs': latency}
     except urllib.error.HTTPError as err:
       latency = round((time.perf_counter() - tStart) * 1000, 1)
-      return {'connected': False, 'code': err.code, 'status': f'Offline ({err.code})', 'url': url, 'latencyMs': latency}
+      return {'connected': False, 'code': err.code, 'status': f'Offline - {err.code}', 'url': url, 'latencyMs': latency}
     except Exception:
       latency = round((time.perf_counter() - tStart) * 1000, 1)
-      return {'connected': False, 'code': 404, 'status': 'Offline (404)', 'url': url, 'latencyMs': latency}
+      return {'connected': False, 'code': 404, 'status': 'Offline - 404', 'url': url, 'latencyMs': latency}
   def checkAllConnections(self):
     results = {}
     for gas in self.dbUrls.keys():

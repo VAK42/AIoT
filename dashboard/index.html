@@ -43,13 +43,20 @@
   }
   @keyframes pulseAlert{0%{opacity:1;transform:scale(1)}50%{opacity:0.8;transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
   .animate-pulse-alert{animation:pulseAlert 1.2s infinite}
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-200 font-sans h-screen flex flex-col overflow-hidden">
   <header class="flex-shrink-0 sticky top-0 z-50 flex items-center justify-between h-12 px-4 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
     <div class="flex items-center gap-3">
-      <button class="text-slate-400 hover:text-slate-200 transition-colors">
-        <i data-lucide="menu" class="w-5 h-5"></i>
+      <button id="btnOpenSettings" title="System Settings" class="text-slate-400 hover:text-sky-300 hover:bg-slate-900 p-1.5 rounded transition-all">
+        <i data-lucide="settings" class="w-4 h-4"></i>
       </button>
       <div class="text-[15px] tracking-tight text-white">
         WISE-IoT Dashboard
@@ -59,6 +66,10 @@
       <button id="btnCheckConnectionsTop" class="px-2.5 py-1 rounded bg-sky-500/10 border border-sky-500/50 text-sky-400 text-xs whitespace-nowrap flex items-center gap-1.5 transition-colors">
         <i data-lucide="radio" class="w-3.5 h-3.5"></i> Check RTDB
       </button>
+      <div id="cleanCountdownBadge" class="flex items-center gap-1.5 px-2.5 py-1 rounded border border-teal-500/30 bg-teal-500/10 text-teal-300 text-xs font-mono">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-teal-400"></i>
+        <span id="cleanCountdownBadgeText">Clean In --s</span>
+      </div>
       <div id="prognosticsBadge" class="flex items-center gap-1.5 px-2.5 py-1 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs">
         <i data-lucide="activity" class="w-3.5 h-3.5" id="prognosticsIcon"></i>
         <span id="prognosticsBadgeText">RTDB: Clean Air - 200</span>
@@ -72,7 +83,7 @@
       </div>
     </div>
   </header>
-  <main class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-3.5 flex flex-col gap-3.5 overflow-hidden">
+  <main class="flex-1 min-h-0 w-full max-w-full mx-auto p-3.5 flex flex-col gap-3.5 overflow-hidden">
     <div id="airChangeToast" class="hidden bg-slate-900 border border-sky-500/60 rounded p-2.5 items-center justify-between gap-2 shadow-lg transition-all flex-shrink-0">
       <div class="flex items-center gap-2 text-xs text-sky-200">
         <i data-lucide="tag" class="w-4 h-4 text-sky-400"></i>
@@ -128,7 +139,7 @@
       </div>
     </section>
     <section class="flex-shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-      <div id="kpiCard1" class="flex flex-col justify-between p-3 min-h-[92px] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all">
+      <div id="kpiCard1" class="flex flex-col justify-between p-3 min-h-[11vh] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all">
         <div class="text-[11px] text-emerald-400/80 flex items-center justify-between" id="kpiTitle1">
           <span class="flex items-center gap-1.5">
             <i data-lucide="zap" class="w-3.5 h-3.5" id="kpiIcon1"></i> <span id="kpiLabel1">Sensor 1 Voltage</span>
@@ -138,7 +149,7 @@
         <div class="text-[22px] text-emerald-300 mt-0.5" id="kpiVal1">-- V</div>
         <div class="text-[10px] text-emerald-500/70 mt-0.5 truncate" id="kpiSub1">Raw ADC1: --</div>
       </div>
-      <div id="kpiCard2" class="flex flex-col justify-between p-3 min-h-[92px] rounded border border-amber-500/40 bg-amber-950/20 transition-all">
+      <div id="kpiCard2" class="flex flex-col justify-between p-3 min-h-[11vh] rounded border border-amber-500/40 bg-amber-950/20 transition-all">
         <div class="text-[11px] text-amber-400/80 flex items-center justify-between" id="kpiTitle2">
           <span class="flex items-center gap-1.5">
             <i data-lucide="activity" class="w-3.5 h-3.5" id="kpiIcon2"></i> <span id="kpiLabel2">Sensor 2 Voltage</span>
@@ -155,7 +166,7 @@
         </div>
         <div class="text-[10px] text-amber-500/70 mt-0.5 truncate" id="kpiSub2">Raw ADC2: --</div>
       </div>
-      <div id="kpiCard3" class="flex flex-col justify-between p-3 min-h-[92px] rounded border border-sky-500/40 bg-sky-950/20 transition-all">
+      <div id="kpiCard3" class="flex flex-col justify-between p-3 min-h-[11vh] rounded border border-sky-500/40 bg-sky-950/20 transition-all">
         <div class="text-[11px] text-sky-400/80 flex items-center justify-between" id="kpiTitle3">
           <span class="flex items-center gap-1.5">
             <i data-lucide="sliders" class="w-3.5 h-3.5" id="kpiIcon3"></i> <span id="kpiLabel3">Differential V1 - V2</span>
@@ -165,7 +176,7 @@
         <div class="text-[22px] text-sky-300 mt-0.5" id="kpiVal3">-- V</div>
         <div class="text-[10px] text-sky-500/70 mt-0.5 truncate" id="kpiSub3">Differential Ratio: --x</div>
       </div>
-      <div id="kpiCard4" class="flex flex-col justify-between p-3 min-h-[92px] rounded border border-rose-500/40 bg-rose-950/20 transition-all">
+      <div id="kpiCard4" class="flex flex-col justify-between p-3 min-h-[11vh] rounded border border-rose-500/40 bg-rose-950/20 transition-all">
         <div class="text-[11px] text-rose-400/80 flex items-center justify-between" id="kpiTitle4">
           <span class="flex items-center gap-1.5">
             <i data-lucide="flame" class="w-3.5 h-3.5" id="kpiIcon4"></i> <span id="kpiLabel4">ESP32 Thermal Duty</span>
@@ -191,16 +202,17 @@
       </div>
       <div id="cardAuditLog" class="col-span-1 lg:col-span-5 h-full rounded border border-slate-800 bg-slate-900/50 flex flex-col overflow-hidden">
         <div class="flex-shrink-0 flex items-center justify-between px-3 py-2 border-b border-slate-800 bg-slate-900/80">
-          <h3 class="text-xs text-slate-200 flex items-center gap-1.5">
+          <div class="flex items-center gap-2">
             <i data-lucide="list" class="w-4 h-4 text-amber-400"></i>
-            <span>Event Audit Log</span>
-          </h3>
+            <span class="text-xs text-slate-200">Event Audit Log</span>
+            <span id="auditLogEnvTag" class="text-[10px] text-teal-300 font-mono bg-teal-950/60 border border-teal-500/30 px-1.5 py-0.5 rounded">Clean Air</span>
+          </div>
+          <span id="auditLogCount" class="text-[10px] text-slate-400 font-mono">0 Cycles</span>
         </div>
         <div class="flex-1 min-h-0 overflow-auto">
           <table class="w-full text-[11px] text-left border-collapse">
             <thead class="bg-slate-900 text-slate-400 border-b border-slate-800 sticky top-0 z-10" id="wiseTableHead">
               <tr id="wiseTableHeadRow">
-                <th class="py-1.5 px-3">Time</th>
                 <th class="py-1.5 px-3">Channel</th>
                 <th class="py-1.5 px-3">Stream Telemetry</th>
                 <th class="py-1.5 px-3">Status</th>
@@ -213,6 +225,150 @@
       </div>
     </section>
   </main>
+  <div id="cycleModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 md:p-6">
+    <div class="bg-slate-900 border border-slate-800 rounded-lg w-[94vw] max-w-[94vw] h-[90vh] max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="flex-shrink-0 flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/90">
+        <div class="flex items-center gap-2">
+          <i data-lucide="activity" class="w-4 h-4 text-teal-400"></i>
+          <span id="cycleModalTitle" class="text-xs text-white font-medium">Clean Air</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-slate-950 rounded border border-slate-800 p-0.5 text-[11px] gap-1">
+            <button id="btnCyclePoints" title="Per Point" class="p-1.5 rounded border border-sky-500/60 bg-sky-950/40 text-sky-300 transition-colors flex items-center justify-center">
+              <i data-lucide="circle-dot" class="w-3.5 h-3.5"></i>
+            </button>
+            <button id="btnCycleSeconds" title="Per Second" class="p-1.5 rounded border border-transparent text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center">
+              <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+          <button id="btnCloseCycleModal" class="text-slate-400 hover:text-white p-1 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+      <div class="p-3 flex-1 min-h-0 flex flex-col gap-2">
+        <div id="cycleModalInfo" class="flex-shrink-0 flex items-center justify-between text-xs px-2.5 py-1.5 rounded bg-slate-950/60 border border-slate-800/80">
+          <div class="flex items-center gap-3">
+            <span id="cycleInfoChannel" class="text-slate-300">Channel: Clean Air</span>
+            <span id="cycleInfoGas" class="text-emerald-400">Gas: Clean Air</span>
+            <span id="cycleInfoPpm" class="text-sky-300 font-mono">0.00 PPM</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="cycleInfoConf" class="text-teal-400 font-mono">100% Conf</span>
+          </div>
+        </div>
+        <div class="relative flex-1 min-h-[50vh] w-full bg-slate-950/40 rounded border border-slate-800/60 p-2">
+          <canvas id="cycleWaveformChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl w-[86vw] max-w-[86vw] h-[86vh] max-h-[86vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/90">
+        <div class="flex items-center gap-2.5">
+          <i data-lucide="sliders" class="w-5 h-5 text-sky-400"></i>
+          <span id="settingsModalTitle" class="text-sm text-white font-medium">System Settings</span>
+        </div>
+        <button id="btnCloseSettingsModal" class="text-slate-400 hover:text-white p-1.5 rounded transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-6 flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-slate-950/60 p-4 rounded-lg border border-slate-800 flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-teal-300 flex items-center gap-1.5 font-medium">
+                <i data-lucide="sparkles" class="w-4 h-4 text-teal-400"></i> Auto Clean Dataset
+              </span>
+              <span id="settingsCleanCountdown" class="text-xs font-mono text-teal-400">Clean In --s</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-[11px]">
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">Cycles Kept</span>
+                <div id="settingsCleanKept" class="text-base text-emerald-400 font-mono mt-0.5">0</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">Cycles Removed</span>
+                <div id="settingsCleanRemoved" class="text-base text-rose-400 font-mono mt-0.5">0</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">Clean Status</span>
+                <div id="settingsCleanStatus" class="text-xs text-teal-300 font-mono mt-1">Idle</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 gap-2 flex-wrap">
+              <div class="flex items-center gap-3">
+                <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                  <input id="toggleAutoClean" type="checkbox" checked class="sr-only peer">
+                  <div class="w-9 h-5 rounded-full border border-slate-700 bg-slate-950 peer-checked:border-teal-400 peer-checked:bg-teal-950/60 relative transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 peer-checked:after:bg-teal-300 after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-4"></div>
+                  <span id="labelAutoCleanStatus" class="text-xs text-teal-300 font-mono">ON</span>
+                </label>
+                <div class="flex items-center gap-1.5">
+                  <label class="text-xs text-slate-300">Interval (m):</label>
+                  <input id="inputCleanMinutes" type="number" min="1" max="120" value="5" class="w-16 bg-slate-900 border border-slate-700 focus:border-teal-500 rounded px-2 py-1 text-xs text-white font-mono text-center outline-none">
+                </div>
+              </div>
+              <button id="btnTriggerManualClean" class="px-3.5 py-1.5 rounded border border-teal-500/60 bg-teal-950/30 text-teal-300 hover:bg-teal-500/20 text-xs flex items-center gap-1.5 transition-colors font-medium">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Clean Now
+              </button>
+            </div>
+          </div>
+          <div class="bg-slate-950/60 p-4 rounded-lg border border-slate-800 flex flex-col justify-between gap-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-sky-300 flex items-center gap-1.5 font-medium">
+                <i data-lucide="cpu" class="w-4 h-4 text-sky-400"></i> MultiTask1DCNN Retrain
+              </span>
+              <span id="settingsRetrainCountdown" class="text-xs font-mono text-sky-400">Retrain In --m</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-[11px]">
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">Gas Accuracy</span>
+                <div id="settingsAccuracy" class="text-base text-emerald-400 font-mono mt-0.5">--%</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">Loss</span>
+                <div id="settingsLoss" class="text-base text-amber-400 font-mono mt-0.5">--</div>
+              </div>
+              <div class="bg-slate-900/80 p-2.5 rounded border border-slate-800/80">
+                <span class="text-slate-400">PPM MAE</span>
+                <div id="settingsMae" class="text-base text-sky-400 font-mono mt-0.5">--</div>
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-1 gap-2 flex-wrap">
+              <div class="flex items-center gap-3">
+                <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+                  <input id="toggleAutoRetrain" type="checkbox" checked class="sr-only peer">
+                  <div class="w-9 h-5 rounded-full border border-slate-700 bg-slate-950 peer-checked:border-sky-400 peer-checked:bg-sky-950/60 relative transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 peer-checked:after:bg-sky-300 after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-4"></div>
+                  <span id="labelAutoRetrainStatus" class="text-xs text-sky-300 font-mono">ON</span>
+                </label>
+                <div class="flex items-center gap-1.5">
+                  <label class="text-xs text-slate-300">Interval (m):</label>
+                  <input id="inputRetrainMinutes" type="number" min="1" max="180" value="15" class="w-16 bg-slate-900 border border-slate-700 focus:border-sky-500 rounded px-2 py-1 text-xs text-white font-mono text-center outline-none">
+                </div>
+              </div>
+              <button id="btnTriggerManualRetrain" class="px-3.5 py-1.5 rounded border border-sky-500/60 bg-sky-950/30 text-sky-300 hover:bg-sky-500/20 text-xs flex items-center gap-1.5 transition-colors font-medium">
+                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Retrain Now
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bg-slate-950/60 p-4 rounded-lg border border-slate-800 flex items-center justify-between gap-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs text-slate-300 font-medium">Stream Tick Speed:</span>
+            <input id="inputSpeedMs" type="number" min="50" max="2000" step="50" value="250" class="w-20 bg-slate-900 border border-slate-700 focus:border-sky-500 rounded px-2.5 py-1 text-xs text-white font-mono text-center outline-none">
+            <span class="text-[10px] text-slate-500 font-mono">ms/t</span>
+          </div>
+          <div class="text-[10px] text-slate-400 font-mono" id="settingsFeedbackToast">&nbsp;</div>
+        </div>
+      </div>
+      <div class="flex-shrink-0 flex items-center justify-end gap-3 px-6 py-3.5 border-t border-slate-800 bg-slate-900/90">
+        <button id="btnSaveSettings" class="px-5 py-2 rounded border border-sky-500/60 bg-sky-950/30 hover:bg-sky-500/20 text-sky-300 hover:text-sky-200 text-xs font-medium transition-colors flex items-center gap-2">
+          <i data-lucide="check" class="w-4 h-4"></i> Save
+        </button>
+      </div>
+    </div>
+  </div>
   <script>
   lucide.createIcons();
   class DataStreamEngine {
@@ -256,78 +412,85 @@
     constructor(app = null) {
       this.app = app;
       this.currentLevel = 'Normal';
-      this.telemetryHistory = this.loadTelemetryHistory();
-      this.telemetryTick = 0;
-      this.lastLogAir = null;
+      this.historyByEnv = {CleanAir: [], H2S: [], NH3: [], MixedAir: []};
+      this.lastLoggedCycleByEnv = {CleanAir: -1, H2S: -1, NH3: -1, MixedAir: -1};
     }
-    loadTelemetryHistory() {
-      try {
-        const saved = localStorage.getItem('wiseTelemetryHistory');
-        if (saved) return JSON.parse(saved);
-      } catch (e) {}
-      return [];
+    setDatasetEvents(gas, events) {
+      const existing = this.historyByEnv[gas] || [];
+      const liveEvents = existing.filter(e => e.id && String(e.id).startsWith('live'));
+      this.historyByEnv[gas] = [...liveEvents, ...events];
+      this.updateLogTableUI();
     }
-    saveTelemetryHistory() {
-      try {
-        localStorage.setItem('wiseTelemetryHistory', JSON.stringify(this.telemetryHistory));
-      } catch (e) {}
-    }
-    logTelemetry(telemetry, channel = 'Clean Air', status = '200') {
+    logCycle(cycleWave, channelName, status = '200', activeAir = 'CleanAir') {
       const now = new Date();
       const pad = n => String(n).padStart(2, '0');
       const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-      const logEntry = {id: 'TEL' + Math.floor(1000 + Math.random() * 9000), time: timeStr, channel, telemetry, status};
-      this.telemetryHistory.unshift(logEntry);
-      if (this.telemetryHistory.length > 50) this.telemetryHistory.pop();
-      this.saveTelemetryHistory();
+      let msg = '';
+      if (cycleWave.channel === 'MixedAir') {
+        let gasName = cycleWave.gas === 'CleanAir' ? 'Clean Air' : cycleWave.gas;
+        const ppm = cycleWave.ppm !== undefined ? Number(cycleWave.ppm).toFixed(2) : '0.00';
+        const conf = cycleWave.confidence !== undefined ? cycleWave.confidence : 0;
+        msg = `${gasName} ${ppm} PPM (${conf}%)`;
+      } else {
+        const v1List = cycleWave.v1 || [];
+        const v2List = cycleWave.v2 || [];
+        const minV1 = v1List.length ? Math.min(...v1List).toFixed(2) : '0.00';
+        const maxV1 = v1List.length ? Math.max(...v1List).toFixed(2) : '0.00';
+        const minV2 = v2List.length ? Math.min(...v2List).toFixed(2) : '0.00';
+        const maxV2 = v2List.length ? Math.max(...v2List).toFixed(2) : '0.00';
+        msg = `V1: ${minV1}-${maxV1}V - V2: ${minV2}-${maxV2}V`;
+      }
+      const logEntry = {
+        id: 'live' + (cycleWave.channel || activeAir) + 'Cycle' + cycleWave.cycleIndex + 'Time' + Date.now(),
+        cycleIndex: cycleWave.cycleIndex,
+        time: timeStr,
+        channel: channelName,
+        channelKey: cycleWave.channel || activeAir,
+        telemetry: msg,
+        status: status,
+        cycleWave: cycleWave
+      };
+      if (!this.historyByEnv[activeAir]) {
+        this.historyByEnv[activeAir] = [];
+      }
+      this.historyByEnv[activeAir].unshift(logEntry);
       this.updateLogTableUI();
     }
     evaluateTelemetry(packet, activeAir) {
-      this.telemetryTick++;
-      if (this.telemetryTick % 16 === 0 || this.lastLogAir !== activeAir) {
-        this.lastLogAir = activeAir;
-        const s = packet.sensor || {};
-        const v1 = (s.voltage1 || 0).toFixed(3);
-        const v2 = (s.voltage2 || 0).toFixed(3);
-        const dac = s.dacVoltage || 0;
-        const pt = s.point || 0;
-        const status = packet.online === false ? '404' : '200';
-        let channelName = activeAir;
-        if (channelName === 'CleanAir') channelName = 'Clean Air';
-        else if (channelName === 'MixedAir') channelName = 'Main';
-        let msg = '';
-        if (packet.online === false) {
-          msg = '404';
-        } else if (activeAir === 'MixedAir') {
-          let gasName = packet.gas || 'Clean Air';
-          if (gasName === 'CleanAir') gasName = 'Clean Air';
-          const ppm = packet.estimatedppm !== undefined ? Number(packet.estimatedppm).toFixed(2) : '0.00';
-          const conf = packet.confidence !== undefined ? packet.confidence : 0;
-          const probs = packet.probabilities || {};
-          const pAir = ((probs.CleanAir || probs['Clean Air'] || 0) * 100).toFixed(1);
-          const pH2s = ((probs.H2S || 0) * 100).toFixed(1);
-          const pNh3 = ((probs.NH3 || 0) * 100).toFixed(1);
-          msg = `PT: ${pt}/250 | ${gasName} ${ppm} PPM (${conf}%) | Air: ${pAir}% H2S: ${pH2s}% NH3: ${pNh3}%`;
-        } else {
-          msg = `PT: ${pt}/250 | V1: ${v1}V, V2: ${v2}V | DAC: ${dac}V`;
+      let channelName = activeAir;
+      if (channelName === 'CleanAir') channelName = 'Clean Air';
+      else if (channelName === 'MixedAir') channelName = 'Main';
+      if (packet.isCycleComplete && packet.cycleWave) {
+        const curEnv = this.app ? this.app.activeAir : activeAir;
+        const lastCycle = this.lastLoggedCycleByEnv[activeAir] !== undefined ? this.lastLoggedCycleByEnv[activeAir] : -1;
+        if (packet.activeAir === curEnv && lastCycle !== packet.cycleWave.cycleIndex) {
+          this.lastLoggedCycleByEnv[activeAir] = packet.cycleWave.cycleIndex;
+          this.logCycle(packet.cycleWave, channelName, packet.online === false ? '404' : '200', activeAir);
         }
-        this.logTelemetry(msg, channelName, status);
       }
     }
     updateLogTableUI() {
       const tbody = document.getElementById('wiseTxTableBody');
       if (!tbody) return;
-      tbody.innerHTML = this.telemetryHistory.map(entry => {
+      const curGas = this.app ? this.app.activeAir : 'CleanAir';
+      const items = this.historyByEnv[curGas] || [];
+      const countEl = document.getElementById('auditLogCount');
+      if (countEl) countEl.innerText = `${items.length} Cycles`;
+      tbody.innerHTML = items.map((entry) => {
         let badgeClass = 'bg-emerald-950/50 text-emerald-400 border border-emerald-500/30';
         if (entry.status === '404' || entry.status === 'Offline') {
           badgeClass = 'bg-rose-950/50 text-rose-400 border border-rose-500/30';
         }
         const displayStatus = (entry.status === 'Offline' || entry.status === '404') ? '404' : '200';
-        return `<tr>
-          <td class="py-2 px-3 text-slate-300">${entry.time}</td>
-          <td class="py-2 px-3 text-slate-400">${entry.channel}</td>
-          <td class="py-2 px-3 text-slate-200 font-mono text-[10px]">${entry.telemetry}</td>
-          <td class="py-2 px-3"><span class="px-1.5 py-0.5 rounded text-[9px] ${badgeClass}">${displayStatus}</span></td>
+        return `<tr class="cursor-pointer hover:bg-slate-800/60 transition-colors group" data-entryid="${entry.id}">
+          <td class="py-2 px-3 text-slate-400 whitespace-nowrap">${entry.channel}</td>
+          <td class="py-2 px-3 text-slate-200 font-mono text-[10px]">
+            <div class="flex items-center justify-between gap-2">
+              <span class="truncate">${entry.telemetry}</span>
+              <span class="text-[9px] text-sky-400 bg-sky-950/60 border border-sky-500/30 px-1.5 py-0.5 rounded opacity-80 group-hover:opacity-100 whitespace-nowrap flex-shrink-0">View</span>
+            </div>
+          </td>
+          <td class="py-2 px-3 whitespace-nowrap"><span class="px-1.5 py-0.5 rounded text-[9px] ${badgeClass}">${displayStatus}</span></td>
         </tr>`;
       }).join('');
     }
@@ -374,6 +537,7 @@
       });
     }
     updateCharts(modelResult, timestamp) {
+      if (this.app && modelResult.activeAir && modelResult.activeAir !== this.app.activeAir) return;
       if (modelResult.online === false) {
         if (this.lineS3WaveformChart) {
           this.lineS3WaveformChart.data.labels = [];
@@ -427,6 +591,9 @@
       this.latestPacket = null;
       this.toastTimer = null;
       this.currentKpiMode = null;
+      this.selectedCycleWave = null;
+      this.cycleViewMode = 'points';
+      this.cycleChartInstance = null;
     }
     async init() {
       this.chartManager.init();
@@ -435,6 +602,7 @@
       const selectAir = document.getElementById('selectActiveAir');
       if (selectAir) this.applyAirTypeChange(selectAir.value);
       this.fetchInitialConnections();
+      await this.fetchDatasetEvents();
       await this.streamEngine.init();
       this.alarmManager.updateLogTableUI();
     }
@@ -447,16 +615,23 @@
         clockEl.innerText = `${now.getUTCFullYear()}-${pad(now.getUTCMonth() + 1)}-${pad(now.getUTCDate())} ${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())} UTC`;
       }, 1000);
     }
-    applyAirTypeChange(gas) {
+    async applyAirTypeChange(gas) {
       this.activeAir = gas;
       this.chartManager.resetHistory();
+      let displayName = gas;
+      if (gas === 'CleanAir') displayName = 'Clean Air';
+      else if (gas === 'MixedAir') displayName = 'Main';
+      const envTag = document.getElementById('auditLogEnvTag');
+      if (envTag) {
+        envTag.innerText = displayName;
+        if (gas === 'CleanAir') envTag.className = 'text-[10px] text-teal-300 font-mono bg-teal-950/60 border border-teal-500/30 px-1.5 py-0.5 rounded';
+        else if (gas === 'MixedAir') envTag.className = 'text-[10px] text-sky-300 font-mono bg-sky-950/60 border border-sky-500/30 px-1.5 py-0.5 rounded';
+        else if (gas === 'H2S') envTag.className = 'text-[10px] text-amber-300 font-mono bg-amber-950/60 border border-amber-500/30 px-1.5 py-0.5 rounded';
+        else envTag.className = 'text-[10px] text-purple-300 font-mono bg-purple-950/60 border border-purple-500/30 px-1.5 py-0.5 rounded';
+      }
       const waveformTitle = document.getElementById('waveformHeaderTitle');
       const waveformTag = document.getElementById('waveformHeaderTag');
-      if (waveformTitle) {
-        if (gas === 'CleanAir') waveformTitle.innerText = 'Clean Air';
-        else if (gas === 'MixedAir') waveformTitle.innerText = 'Main';
-        else waveformTitle.innerText = gas;
-      }
+      if (waveformTitle) waveformTitle.innerText = displayName;
       if (waveformTag) {
         if (gas === 'MixedAir') {
           waveformTag.innerText = 'Edge AI Inference • +20s Horizon';
@@ -479,8 +654,10 @@
       } else {
         this.updateKpiRow({online: isOnline, sensor: {voltage1: 0, voltage2: 0, sensor1: 0, sensor2: 0, dacVoltage: 0, pulse: 0, point: 0}});
       }
+      this.updateLiveSensorCard({online: isOnline, sensor: {voltage1: 0, voltage2: 0, sensor1: 0, sensor2: 0, dacVoltage: 0, pulse: 0, point: 0}});
       this.updateStatusBadge();
       this.alarmManager.updateLogTableUI();
+      await this.fetchDatasetEvents(gas);
     }
     updateAirCardUI(isOnline) {
       const selectAir = document.getElementById('selectActiveAir');
@@ -497,7 +674,7 @@
           : 'flex flex-col bg-slate-950/60 p-2.5 rounded border border-rose-500/70 transition-all';
       }
       if (labelTarget) {
-        labelTarget.innerText = isOnline ? 'Online • Recording To RAM -> Disk' : 'Offline (404)';
+        labelTarget.innerText = isOnline ? 'Online • Recording To RAM -> Disk' : 'Offline - 404';
         labelTarget.className = isOnline 
           ? 'text-[9px] text-emerald-400 mt-0.5 font-mono truncate' 
           : 'text-[9px] text-rose-400 mt-0.5 font-mono truncate';
@@ -549,6 +726,78 @@
           await this.checkAllConnections();
         });
       }
+      const tbody = document.getElementById('wiseTxTableBody');
+      if (tbody) {
+        tbody.addEventListener('click', (e) => {
+          const tr = e.target.closest('tr');
+          if (!tr) return;
+          const entryId = tr.getAttribute('data-entryid');
+          const curGas = this.activeAir || 'CleanAir';
+          const envList = this.alarmManager.historyByEnv[curGas] || [];
+          const item = envList.find(el => el.id === entryId);
+          if (item && item.cycleWave) {
+            this.openCycleModal(item.cycleWave);
+          }
+        });
+      }
+      const btnClose = document.getElementById('btnCloseCycleModal');
+      const modal = document.getElementById('cycleModal');
+      const btnPts = document.getElementById('btnCyclePoints');
+      const btnSec = document.getElementById('btnCycleSeconds');
+      if (btnClose && modal) {
+        btnClose.addEventListener('click', () => modal.classList.add('hidden'));
+      }
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) modal.classList.add('hidden');
+        });
+      }
+      if (btnPts) {
+        btnPts.addEventListener('click', () => {
+          this.cycleViewMode = 'points';
+          this.updateCycleModalButtons();
+          this.renderCycleChart();
+        });
+      }
+      if (btnSec) {
+        btnSec.addEventListener('click', () => {
+          this.cycleViewMode = 'seconds';
+          this.updateCycleModalButtons();
+          this.renderCycleChart();
+        });
+      }
+      const btnOpenSet = document.getElementById('btnOpenSettings');
+      const cardCron = document.getElementById('cardRetrainCron');
+      const btnCloseSet = document.getElementById('btnCloseSettingsModal');
+      const modalSet = document.getElementById('settingsModal');
+      const btnSaveSet = document.getElementById('btnSaveSettings');
+      const btnCleanNow = document.getElementById('btnTriggerManualClean');
+      const btnRetrainNow = document.getElementById('btnTriggerManualRetrain');
+      if (btnOpenSet) btnOpenSet.addEventListener('click', () => this.openSettingsModal());
+      if (cardCron) cardCron.addEventListener('click', () => this.openSettingsModal());
+      if (btnCloseSet) btnCloseSet.addEventListener('click', () => this.closeSettingsModal());
+      if (modalSet) {
+        modalSet.addEventListener('click', (e) => {
+          if (e.target === modalSet) this.closeSettingsModal();
+        });
+      }
+      if (btnSaveSet) btnSaveSet.addEventListener('click', () => this.saveSettings());
+      if (btnCleanNow) btnCleanNow.addEventListener('click', () => this.triggerManualClean());
+      if (btnRetrainNow) btnRetrainNow.addEventListener('click', () => this.triggerManualRetrain());
+      const toggleClean = document.getElementById('toggleAutoClean');
+      const toggleRetrain = document.getElementById('toggleAutoRetrain');
+      if (toggleClean) {
+        toggleClean.addEventListener('change', () => {
+          const lbl = document.getElementById('labelAutoCleanStatus');
+          if (lbl) lbl.innerText = toggleClean.checked ? 'ON' : 'OFF';
+        });
+      }
+      if (toggleRetrain) {
+        toggleRetrain.addEventListener('change', () => {
+          const lbl = document.getElementById('labelAutoRetrainStatus');
+          if (lbl) lbl.innerText = toggleRetrain.checked ? 'ON' : 'OFF';
+        });
+      }
     }
     async fetchInitialConnections() {
       try {
@@ -597,11 +846,10 @@
       lucide.createIcons();
     }
     onTelemetryReceived(packet) {
+      if (packet.activeAir && packet.activeAir !== this.activeAir) return;
       this.latestPacket = packet;
       this.alarmManager.evaluateTelemetry(packet, this.activeAir);
-      if (packet.activeAir === this.activeAir) {
-        this.updateAirCardUI(packet.online !== false);
-      }
+      this.updateAirCardUI(packet.online !== false);
       this.updateKpiRow(packet);
       this.chartManager.updateCharts(packet, packet.timestamp);
       this.updateLiveSensorCard(packet);
@@ -643,8 +891,8 @@
         const ramEl = document.getElementById('liveRamCount');
         const flushEl = document.getElementById('liveFlushCountdown');
         const retrainEl = document.getElementById('liveRetrainCountdown');
-        const totalRam = Object.values(c.ramCounts || {}).reduce((a, b) => a + b, 0);
-        if (ramEl) ramEl.innerText = `${totalRam} pts`;
+        const curRam = (c.ramCounts && c.ramCounts[this.activeAir] !== undefined) ? c.ramCounts[this.activeAir] : 0;
+        if (ramEl) ramEl.innerText = `${curRam} pts`;
         if (flushEl) flushEl.innerText = `Flush In ${c.secondsUntilFlush}s`;
         if (retrainEl) {
           if (packet.online === false) {
@@ -657,12 +905,50 @@
             retrainEl.innerText = `${lat} ms`;
           }
         }
+        const cronLabel = document.getElementById('cronCardLabel');
+        if (cronLabel) cronLabel.innerText = 'Firebase Latency';
         const cronSub = document.getElementById('cronCardSub');
         if (cronSub) {
           if (this.activeAir === 'MixedAir' && packet.latencyMs !== undefined) {
             cronSub.innerText = `Inference: ${packet.latencyMs} ms`;
           } else {
             cronSub.innerText = 'RTDB Ingestion Ping';
+          }
+        }
+        const cleanBadge = document.getElementById('cleanCountdownBadgeText');
+        if (cleanBadge) {
+          if (c.autoCleanEnabled === false) {
+            cleanBadge.innerText = 'Auto Clean: OFF';
+          } else {
+            cleanBadge.innerText = c.isCleaning ? 'Cleaning...' : `Clean In ${c.secondsUntilClean || 0}s`;
+          }
+        }
+        const setCleanCd = document.getElementById('settingsCleanCountdown');
+        const setRetrainCd = document.getElementById('settingsRetrainCountdown');
+        const setKept = document.getElementById('settingsCleanKept');
+        const setRemoved = document.getElementById('settingsCleanRemoved');
+        const setStatus = document.getElementById('settingsCleanStatus');
+        if (setCleanCd) {
+          if (c.autoCleanEnabled === false) {
+            setCleanCd.innerText = 'Auto Clean OFF';
+          } else {
+            setCleanCd.innerText = c.isCleaning ? 'Cleaning In Progress...' : `Clean In ${c.secondsUntilClean || 0}s`;
+          }
+        }
+        if (setRetrainCd) {
+          if (c.autoRetrainEnabled === false) {
+            setRetrainCd.innerText = 'Auto Retrain OFF';
+          } else {
+            setRetrainCd.innerText = c.isRetraining ? 'Retraining...' : `Retrain In ${Math.ceil((c.secondsUntilRetrain || 0) / 60)}m (${c.secondsUntilRetrain || 0}s)`;
+          }
+        }
+        if (setKept) setKept.innerText = String(c.totalCleanCycles || 0);
+        if (setRemoved) setRemoved.innerText = String(c.totalRemovedCycles || 0);
+        if (setStatus) {
+          if (c.autoCleanEnabled === false) {
+            setStatus.innerText = 'Disabled';
+          } else {
+            setStatus.innerText = c.isCleaning ? 'Cleaning...' : (c.isRetraining ? 'Retraining...' : 'Idle');
           }
         }
       }
@@ -734,7 +1020,7 @@
           if (sub3) sub3.innerText = 'Dual-Branch ConvNet';
           if (val4) val4.innerText = 'Offline';
           if (sub4) sub4.innerText = 'OSHA PEL Check • Horizon +20s: --';
-          if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-rose-500/40 bg-rose-950/20 transition-all';
+          if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-rose-500/40 bg-rose-950/20 transition-all';
         } else {
           const ppm = packet.estimatedppm !== undefined ? Number(packet.estimatedppm) : 0.0;
           let gasName = packet.gas || 'Clean Air';
@@ -749,7 +1035,7 @@
           const prog = packet.prognostics || {};
           const traj = prog.trajectoryPoints || [];
           const proj20s = traj.length > 0 ? traj[traj.length - 1] : (packet.sensor ? packet.sensor.voltage2 : 0.0);
-          if (card1) card1.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-sky-500/40 bg-sky-950/20 transition-all';
+          if (card1) card1.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-sky-500/40 bg-sky-950/20 transition-all';
           if (title1) title1.className = 'text-[11px] text-sky-400/80 flex items-center justify-between';
           if (val1) {
             val1.innerText = `${ppm.toFixed(2)} PPM`;
@@ -773,17 +1059,17 @@
             badge2.innerText = `${dominantPct.toFixed(1)}%`;
           }
           if (gasName === 'H2S') {
-            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-amber-500/50 bg-amber-950/25 transition-all';
+            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-amber-500/50 bg-amber-950/25 transition-all';
             if (title2) title2.className = 'text-[11px] text-amber-400/80 flex items-center justify-between';
             if (val2) { val2.innerText = gasName; val2.className = 'text-[22px] text-amber-300 mt-0.5'; }
             if (badge2) badge2.className = 'text-[10px] px-1.5 py-0.5 rounded font-mono border border-amber-500/50 bg-amber-500/10 text-amber-300';
           } else if (gasName === 'NH3') {
-            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-fuchsia-500/50 bg-fuchsia-950/25 transition-all';
+            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-fuchsia-500/50 bg-fuchsia-950/25 transition-all';
             if (title2) title2.className = 'text-[11px] text-fuchsia-400/80 flex items-center justify-between';
             if (val2) { val2.innerText = gasName; val2.className = 'text-[22px] text-fuchsia-300 mt-0.5'; }
             if (badge2) badge2.className = 'text-[10px] px-1.5 py-0.5 rounded font-mono border border-fuchsia-500/50 bg-fuchsia-500/10 text-fuchsia-300';
           } else {
-            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
+            if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
             if (title2) title2.className = 'text-[11px] text-emerald-400/80 flex items-center justify-between';
             if (val2) { val2.innerText = gasName; val2.className = 'text-[22px] text-emerald-300 mt-0.5'; }
             if (badge2) badge2.className = 'text-[10px] px-1.5 py-0.5 rounded font-mono border border-emerald-500/50 bg-emerald-500/10 text-emerald-300';
@@ -792,7 +1078,7 @@
             sub2.className = 'text-[10px] mt-0.5 font-mono flex items-center gap-1.5 truncate';
             sub2.innerHTML = `<span class="text-emerald-400">Air: ${pClean.toFixed(1)}%</span><span class="text-slate-600">•</span><span class="text-amber-400">H2S: ${pH2s.toFixed(1)}%</span><span class="text-slate-600">•</span><span class="text-fuchsia-400">NH3: ${pNh3.toFixed(1)}%</span>`;
           }
-          if (card3) card3.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-teal-500/40 bg-teal-950/20 transition-all';
+          if (card3) card3.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-teal-500/40 bg-teal-950/20 transition-all';
           if (title3) title3.className = 'text-[11px] text-teal-400/80 flex items-center justify-between';
           if (val3) {
             val3.innerText = `${conf}% Conf`;
@@ -804,23 +1090,23 @@
           }
           const horizonText = `Horizon +20s: ${Number(proj20s).toFixed(3)} V`;
           if (risk === 'Emergency') {
-            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-rose-500/70 bg-rose-950/30 text-rose-300 animate-pulse-alert transition-all';
+            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-rose-500/70 bg-rose-950/30 text-rose-300 animate-pulse-alert transition-all';
             if (title4) title4.className = 'text-[11px] text-rose-400/90 flex items-center justify-between';
             if (val4) { val4.className = 'text-[22px] text-rose-300 mt-0.5'; val4.innerText = risk; }
             const tteText = prog.timeToEmergencySec ? `TTE: ${prog.timeToEmergencySec}s` : 'IDLH Exceeded';
             if (sub4) { sub4.innerText = `${tteText} • ${horizonText}`; sub4.className = 'text-[10px] text-rose-500/80 mt-0.5 truncate'; }
           } else if (risk === 'Hazardous') {
-            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-orange-500/50 bg-orange-950/25 transition-all';
+            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-orange-500/50 bg-orange-950/25 transition-all';
             if (title4) title4.className = 'text-[11px] text-orange-400/80 flex items-center justify-between';
             if (val4) { val4.className = 'text-[22px] text-orange-300 mt-0.5'; val4.innerText = risk; }
             if (sub4) { sub4.innerText = `OSHA Action Level • ${horizonText}`; sub4.className = 'text-[10px] text-orange-500/70 mt-0.5 truncate'; }
           } else if (risk === 'Warning') {
-            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-amber-500/40 bg-amber-950/20 transition-all';
+            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-amber-500/40 bg-amber-950/20 transition-all';
             if (title4) title4.className = 'text-[11px] text-amber-400/80 flex items-center justify-between';
             if (val4) { val4.className = 'text-[22px] text-amber-300 mt-0.5'; val4.innerText = risk; }
             if (sub4) { sub4.innerText = `Elevated Concentration • ${horizonText}`; sub4.className = 'text-[10px] text-amber-500/70 mt-0.5 truncate'; }
           } else {
-            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
+            if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
             if (title4) title4.className = 'text-[11px] text-emerald-400/80 flex items-center justify-between';
             if (val4) { val4.className = 'text-[22px] text-emerald-300 mt-0.5'; val4.innerText = risk; }
             if (sub4) { sub4.innerText = `OSHA PEL Check • ${horizonText}`; sub4.className = 'text-[10px] text-emerald-500/70 mt-0.5 truncate'; }
@@ -829,22 +1115,22 @@
       } else {
         if (bar2) bar2.classList.add('hidden');
         if (badge2) badge2.classList.add('hidden');
-        if (card1) card1.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
+        if (card1) card1.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-emerald-500/40 bg-emerald-950/20 transition-all';
         if (title1) title1.className = 'text-[11px] text-emerald-400/80 flex items-center justify-between';
         if (val1) val1.className = 'text-[22px] text-emerald-300 mt-0.5';
         if (sub1) sub1.className = 'text-[10px] text-emerald-500/70 mt-0.5 truncate';
-        if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-amber-500/40 bg-amber-950/20 transition-all';
+        if (card2) card2.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-amber-500/40 bg-amber-950/20 transition-all';
         if (title2) title2.className = 'text-[11px] text-amber-400/80 flex items-center justify-between';
         if (val2) val2.className = 'text-[22px] text-amber-300 mt-0.5';
         if (sub2) {
           sub2.className = 'text-[10px] text-amber-500/70 mt-0.5 truncate';
           sub2.innerText = `Raw ADC2: ${packet.sensor ? (packet.sensor.sensor2 || 0) : 0}`;
         }
-        if (card3) card3.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-sky-500/40 bg-sky-950/20 transition-all';
+        if (card3) card3.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-sky-500/40 bg-sky-950/20 transition-all';
         if (title3) title3.className = 'text-[11px] text-sky-400/80 flex items-center justify-between';
         if (val3) val3.className = 'text-[22px] text-sky-300 mt-0.5';
         if (sub3) sub3.className = 'text-[10px] text-sky-500/70 mt-0.5 truncate';
-        if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[92px] rounded border border-rose-500/40 bg-rose-950/20 transition-all';
+        if (card4) card4.className = 'flex flex-col justify-between p-3 min-h-[11vh] rounded border border-rose-500/40 bg-rose-950/20 transition-all';
         if (title4) title4.className = 'text-[11px] text-rose-400/80 flex items-center justify-between';
         if (val4) val4.className = 'text-[22px] text-rose-300 mt-0.5';
         if (sub4) sub4.className = 'text-[10px] text-rose-500/70 mt-0.5 truncate';
@@ -871,6 +1157,287 @@
           if (val4) val4.innerText = `${s.pulse || 0} PWM`;
           if (sub4) sub4.innerText = `DAC: ${s.dacVoltage || 0} V`;
         }
+      }
+    }
+    openCycleModal(cycleWave) {
+      this.selectedCycleWave = cycleWave;
+      this.cycleViewMode = 'points';
+      const modal = document.getElementById('cycleModal');
+      const titleEl = document.getElementById('cycleModalTitle');
+      const chanEl = document.getElementById('cycleInfoChannel');
+      const gasEl = document.getElementById('cycleInfoGas');
+      const ppmEl = document.getElementById('cycleInfoPpm');
+      const confEl = document.getElementById('cycleInfoConf');
+      let channelName = cycleWave.channel;
+      if (channelName === 'CleanAir') channelName = 'Clean Air';
+      else if (channelName === 'MixedAir') channelName = 'Main';
+      if (titleEl) titleEl.innerText = channelName;
+      if (chanEl) chanEl.innerText = `Channel: ${channelName}`;
+      if (cycleWave.channel === 'MixedAir') {
+        let gasName = cycleWave.gas === 'CleanAir' ? 'Clean Air' : cycleWave.gas;
+        if (gasEl) gasEl.innerText = `Predicted Gas: ${gasName}`;
+        if (ppmEl) { ppmEl.innerText = `${Number(cycleWave.ppm || 0).toFixed(2)} PPM`; ppmEl.classList.remove('hidden'); }
+        if (confEl) { confEl.innerText = `${cycleWave.confidence || 0}% Conf`; confEl.classList.remove('hidden'); }
+      } else {
+        if (gasEl) gasEl.innerText = `Telemetry: ${channelName}`;
+        if (ppmEl) ppmEl.classList.add('hidden');
+        if (confEl) confEl.classList.add('hidden');
+      }
+      this.updateCycleModalButtons();
+      this.renderCycleChart();
+      if (modal) modal.classList.remove('hidden');
+      lucide.createIcons();
+    }
+    updateCycleModalButtons() {
+      const btnPts = document.getElementById('btnCyclePoints');
+      const btnSec = document.getElementById('btnCycleSeconds');
+      if (btnPts && btnSec) {
+        if (this.cycleViewMode === 'points') {
+          btnPts.className = 'p-1.5 rounded border border-sky-500/60 bg-sky-950/40 text-sky-300 transition-colors flex items-center justify-center';
+          btnSec.className = 'p-1.5 rounded border border-transparent text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center';
+        } else {
+          btnSec.className = 'p-1.5 rounded border border-sky-500/60 bg-sky-950/40 text-sky-300 transition-colors flex items-center justify-center';
+          btnPts.className = 'p-1.5 rounded border border-transparent text-slate-400 hover:text-slate-200 transition-colors flex items-center justify-center';
+        }
+      }
+    }
+    renderCycleChart() {
+      const w = this.selectedCycleWave;
+      if (!w || !w.v1 || !w.v2) return;
+      const canvas = document.getElementById('cycleWaveformChart');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (this.cycleChartInstance) {
+        this.cycleChartInstance.destroy();
+        this.cycleChartInstance = null;
+      }
+      const speedSec = (w.speedMs || 250) / 1000;
+      const labels = (this.cycleViewMode === 'points')
+        ? Array.from({length: 250}, (_, i) => String(i))
+        : Array.from({length: 250}, (_, i) => (i * speedSec).toFixed(1) + 's');
+      this.cycleChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Voltage 1 - MQ135',
+              data: w.v1,
+              borderColor: '#38bdf8',
+              backgroundColor: 'rgba(56, 189, 248, 0.08)',
+              borderWidth: 1.5,
+              pointRadius: 0.8,
+              fill: true
+            },
+            {
+              label: 'Voltage 2 - MQ136',
+              data: w.v2,
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.08)',
+              borderWidth: 1.5,
+              pointRadius: 0.8,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {boxWidth: 10, font: {size: 10}}
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: this.cycleViewMode === 'points' ? 'Wave Cycle Point' : 'Cycle Elapsed Time',
+                font: {size: 10},
+                color: '#64748b'
+              },
+              ticks: {maxTicksLimit: 14, font: {size: 10}}
+            },
+            y: {
+              suggestedMin: 0.0,
+              suggestedMax: 3.3,
+              title: {
+                display: true,
+                text: 'Voltage',
+                font: {size: 10},
+                color: '#64748b'
+              },
+              ticks: {font: {size: 10}}
+            }
+          }
+        }
+      });
+    }
+    async openSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      if (modal) modal.classList.remove('hidden');
+      await this.fetchSettingsData();
+      lucide.createIcons();
+    }
+    closeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      if (modal) modal.classList.add('hidden');
+    }
+    async fetchSettingsData() {
+      const apiBase = (window.location.port === '8001') ? '' : 'http://127.0.0.1:8001';
+      try {
+        const resp = await fetch(`${apiBase}/api/settings`);
+        const data = await resp.json();
+        const inClean = document.getElementById('inputCleanMinutes');
+        const inRetrain = document.getElementById('inputRetrainMinutes');
+        const inSpeed = document.getElementById('inputSpeedMs');
+        const toggleClean = document.getElementById('toggleAutoClean');
+        const toggleRetrain = document.getElementById('toggleAutoRetrain');
+        const lblClean = document.getElementById('labelAutoCleanStatus');
+        const lblRetrain = document.getElementById('labelAutoRetrainStatus');
+        if (inClean && data.cleanMinutes) inClean.value = data.cleanMinutes;
+        if (inRetrain && data.retrainMinutes) inRetrain.value = data.retrainMinutes;
+        if (inSpeed) inSpeed.value = this.streamEngine.speedMs || 250;
+        if (toggleClean) {
+          toggleClean.checked = (data.autoCleanEnabled !== false);
+          if (lblClean) lblClean.innerText = toggleClean.checked ? 'ON' : 'OFF';
+        }
+        if (toggleRetrain) {
+          toggleRetrain.checked = (data.autoRetrainEnabled !== false);
+          if (lblRetrain) lblRetrain.innerText = toggleRetrain.checked ? 'ON' : 'OFF';
+        }
+        const setCleanCd = document.getElementById('settingsCleanCountdown');
+        const setRetrainCd = document.getElementById('settingsRetrainCountdown');
+        const setKept = document.getElementById('settingsCleanKept');
+        const setRemoved = document.getElementById('settingsCleanRemoved');
+        const setStatus = document.getElementById('settingsCleanStatus');
+        if (setCleanCd) {
+          if (data.autoCleanEnabled === false) {
+            setCleanCd.innerText = 'Auto Clean OFF';
+          } else {
+            setCleanCd.innerText = data.isCleaning ? 'Cleaning In Progress...' : `Clean In ${data.secondsUntilClean || 0}s`;
+          }
+        }
+        if (setRetrainCd) {
+          if (data.autoRetrainEnabled === false) {
+            setRetrainCd.innerText = 'Auto Retrain OFF';
+          } else {
+            setRetrainCd.innerText = data.isRetraining ? 'Retraining...' : `Retrain In ${Math.ceil((data.secondsUntilRetrain || 0) / 60)}m (${data.secondsUntilRetrain || 0}s)`;
+          }
+        }
+        if (setKept) setKept.innerText = String(data.totalCleanCycles || 0);
+        if (setRemoved) setRemoved.innerText = String(data.totalRemovedCycles || 0);
+        if (setStatus) {
+          if (data.autoCleanEnabled === false) {
+            setStatus.innerText = 'Disabled';
+          } else {
+            setStatus.innerText = data.isCleaning ? 'Cleaning...' : (data.isRetraining ? 'Retraining...' : 'Idle');
+          }
+        }
+        const statsResp = await fetch(`${apiBase}/api/stats`);
+        const stats = await statsResp.json();
+        const accEl = document.getElementById('settingsAccuracy');
+        const lossEl = document.getElementById('settingsLoss');
+        const maeEl = document.getElementById('settingsMae');
+        if (accEl) accEl.innerText = stats.finalAccuracy ? `${stats.finalAccuracy}%` : '--%';
+        if (lossEl) lossEl.innerText = stats.finalLoss !== undefined ? `${stats.finalLoss}` : '--';
+        if (maeEl) maeEl.innerText = stats.finalMAE !== undefined ? `${stats.finalMAE}` : '--';
+      } catch (e) {}
+    }
+    async saveSettings() {
+      const apiBase = (window.location.port === '8001') ? '' : 'http://127.0.0.1:8001';
+      const inClean = document.getElementById('inputCleanMinutes');
+      const inRetrain = document.getElementById('inputRetrainMinutes');
+      const inSpeed = document.getElementById('inputSpeedMs');
+      const toggleClean = document.getElementById('toggleAutoClean');
+      const toggleRetrain = document.getElementById('toggleAutoRetrain');
+      const toast = document.getElementById('settingsFeedbackToast');
+      const cleanMin = inClean ? parseInt(inClean.value, 10) : 5;
+      const retrainMin = inRetrain ? parseInt(inRetrain.value, 10) : 15;
+      const speedMs = inSpeed ? parseInt(inSpeed.value, 10) : 250;
+      const autoClean = toggleClean ? toggleClean.checked : true;
+      const autoRetrain = toggleRetrain ? toggleRetrain.checked : true;
+      if (this.streamEngine && this.streamEngine.ws && this.streamEngine.ws.readyState === WebSocket.OPEN) {
+        this.streamEngine.ws.send(JSON.stringify({action: 'setSpeed', speedMs: speedMs}));
+        this.streamEngine.ws.send(JSON.stringify({action: 'toggleAutoClean', enabled: autoClean}));
+        this.streamEngine.ws.send(JSON.stringify({action: 'toggleAutoRetrain', enabled: autoRetrain}));
+      }
+      try {
+        const resp = await fetch(`${apiBase}/api/settings`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({cleanMinutes: cleanMin, retrainMinutes: retrainMin, speedMs: speedMs, autoCleanEnabled: autoClean, autoRetrainEnabled: autoRetrain})
+        });
+        const saved = await resp.json();
+        if (toast) {
+          toast.innerText = 'Settings saved successfully!';
+          toast.className = 'text-[10px] text-emerald-400 font-mono';
+          setTimeout(() => { toast.innerHTML = '&nbsp;'; }, 3000);
+        }
+      } catch (e) {
+        if (toast) {
+          toast.innerText = 'Failed to save settings';
+          toast.className = 'text-[10px] text-rose-400 font-mono';
+          setTimeout(() => { toast.innerHTML = '&nbsp;'; }, 3000);
+        }
+      }
+    }
+    async triggerManualClean() {
+      const apiBase = (window.location.port === '8001') ? '' : 'http://127.0.0.1:8001';
+      const btn = document.getElementById('btnTriggerManualClean');
+      const prevHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Cleaning...';
+        lucide.createIcons();
+      }
+      try {
+        const resp = await fetch(`${apiBase}/api/clean`, {method: 'POST'});
+        const res = await resp.json();
+        await this.fetchSettingsData();
+        await this.fetchDatasetEvents();
+      } catch (e) {}
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = prevHtml;
+        lucide.createIcons();
+      }
+    }
+    async fetchDatasetEvents(gas = null) {
+      const targetGas = gas || this.activeAir || 'CleanAir';
+      const apiBase = (window.location.port === '8001') ? '' : 'http://127.0.0.1:8001';
+      try {
+        const resp = await fetch(`${apiBase}/api/events?channel=${targetGas}`);
+        const events = await resp.json();
+        if (Array.isArray(events)) {
+          this.alarmManager.setDatasetEvents(targetGas, events);
+        }
+      } catch (e) {}
+    }
+    async triggerManualRetrain() {
+      const apiBase = (window.location.port === '8001') ? '' : 'http://127.0.0.1:8001';
+      const btn = document.getElementById('btnTriggerManualRetrain');
+      const prevHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Retraining...';
+        lucide.createIcons();
+      }
+      try {
+        const resp = await fetch(`${apiBase}/api/retrain`, {method: 'POST'});
+        const res = await resp.json();
+        await this.fetchSettingsData();
+      } catch (e) {}
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = prevHtml;
+        lucide.createIcons();
       }
     }
   }
